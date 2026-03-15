@@ -4,10 +4,17 @@ const { CallToolRequestSchema, ListToolsRequestSchema } = require("@modelcontext
 const { execSync, spawn } = require("child_process");
 const path = require("path");
 
-const server = new Server({
-  name: "local-dev-tools",
-  version: "1.0.0",
-});
+const server = new Server(
+  {
+    name: "local-dev-tools",
+    version: "1.0.0",
+  },
+  {
+    capabilities: {
+      tools: {},
+    },
+  }
+);
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
