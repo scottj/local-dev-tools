@@ -6,7 +6,7 @@ This is an MCP (Model Context Protocol) server called `local-dev-tools` that exp
 
 ## Architecture
 
-Single-file Node.js MCP server (`local-dev-tools.js`) using `@modelcontextprotocol/sdk`. All tool handlers are in a switch statement inside the `CallToolRequestSchema` handler. Commands are executed synchronously via `child_process.execSync` with a 10MB output buffer.
+Single-file MCP server (`local-dev-tools.js`) run with Bun, using `@modelcontextprotocol/sdk`. All tool handlers are in a switch statement inside the `CallToolRequestSchema` handler. Commands are executed synchronously via `child_process.execSync` with a 10MB output buffer.
 
 ## Tools Provided
 
@@ -22,8 +22,8 @@ Single-file Node.js MCP server (`local-dev-tools.js`) using `@modelcontextprotoc
 
 ## Development
 
-- Runtime: Node.js (CommonJS `require` style)
-- No build step — run directly with `node local-dev-tools.js`
+- Runtime: Bun (CommonJS `require` style)
+- No build step — run directly with `bun local-dev-tools.js`
 - Dependencies: `@modelcontextprotocol/sdk`
 
 ## Conventions
