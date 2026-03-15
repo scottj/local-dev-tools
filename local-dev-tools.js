@@ -39,7 +39,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "rodney",
-      description: "Run uvx rodney for AI-assisted development tasks. Rodney provides intelligent code analysis and generation capabilities.",
+      description: "Run uvx rodney for web browser automation. Rodney provides browser control capabilities for testing and scraping.",
       inputSchema: {
         type: "object",
         properties: {
@@ -89,6 +89,101 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
             type: "array",
             items: { type: "string" },
             description: "Arguments for the uv command",
+          },
+        },
+        required: ["command"],
+      },
+    },
+    {
+      name: "uvx",
+      description: "Run uvx to execute Python CLI tools from PyPI without installing them permanently.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          package: {
+            type: "string",
+            description: "The package/tool to run (e.g., 'black', 'ruff', 'mypy')",
+          },
+          args: {
+            type: "array",
+            items: { type: "string" },
+            description: "Arguments to pass to the tool",
+          },
+        },
+        required: ["package"],
+      },
+    },
+    {
+      name: "go",
+      description: "Run Go toolchain commands. Use for building, testing, and managing Go projects.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          command: {
+            type: "string",
+            description: "Go command (e.g., 'build', 'test', 'run', 'mod', 'vet', 'fmt')",
+          },
+          args: {
+            type: "array",
+            items: { type: "string" },
+            description: "Arguments for the go command",
+          },
+        },
+        required: ["command"],
+      },
+    },
+    {
+      name: "gh",
+      description: "Run GitHub CLI commands. Use for interacting with GitHub repositories, issues, PRs, and more.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          command: {
+            type: "string",
+            description: "gh command (e.g., 'pr', 'issue', 'repo', 'run', 'api')",
+          },
+          args: {
+            type: "array",
+            items: { type: "string" },
+            description: "Arguments for the gh command",
+          },
+        },
+        required: ["command"],
+      },
+    },
+    {
+      name: "git",
+      description: "Run git version control commands. Use for repository management, branching, committing, and history.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          command: {
+            type: "string",
+            description: "git command (e.g., 'status', 'log', 'diff', 'branch', 'checkout', 'commit')",
+          },
+          args: {
+            type: "array",
+            items: { type: "string" },
+            description: "Arguments for the git command",
+          },
+        },
+        required: ["command"],
+      },
+    },
+    {
+      name: "dotnet",
+      description: "Run .NET CLI commands. Use for building, testing, and managing .NET projects.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          command: {
+            type: "string",
+            description: "dotnet command (e.g., 'build', 'test', 'run', 'new', 'add', 'publish')",
+          },
+          args: {
+            type: "array",
+            items: { type: "string" },
+            description: "Arguments for the dotnet command",
           },
         },
         required: ["command"],
@@ -155,6 +250,41 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const command = request.params.arguments.command;
         const args = request.params.arguments.args || [];
         result = executeCommand("uv", [command, ...args]);
+        break;
+      }
+
+      case "uvx": {
+        const pkg = request.params.arguments.package;
+        const args = request.params.arguments.args || [];
+        result = executeCommand("uvx", [pkg, ...args]);
+        break;
+      }
+
+      case "go": {
+        const command = request.params.arguments.command;
+        const args = request.params.arguments.args || [];
+        result = executeCommand("go", [command, ...args]);
+        break;
+      }
+
+      case "gh": {
+        const command = request.params.arguments.command;
+        const args = request.params.arguments.args || [];
+        result = executeCommand("gh", [command, ...args]);
+        break;
+      }
+
+      case "git": {
+        const command = request.params.arguments.command;
+        const args = request.params.arguments.args || [];
+        result = executeCommand("git", [command, ...args]);
+        break;
+      }
+
+      case "dotnet": {
+        const command = request.params.arguments.command;
+        const args = request.params.arguments.args || [];
+        result = executeCommand("dotnet", [command, ...args]);
         break;
       }
 
