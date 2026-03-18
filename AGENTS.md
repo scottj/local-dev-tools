@@ -6,11 +6,11 @@ This is an MCP (Model Context Protocol) server called `local-dev-tools` that exp
 
 ## Architecture
 
-Single-file MCP server (`local-dev-tools.js`) run with Bun, using `@modelcontextprotocol/sdk`. All tool handlers are in a switch statement inside the `CallToolRequestSchema` handler. Commands are executed synchronously via `child_process.execSync` with a 10MB output buffer.
+Single-file MCP server (`local-dev-tools.js`) run with Bun, using `@modelcontextprotocol/sdk`. All tool handlers are in a switch statement inside the `CallToolRequestSchema` handler. Commands are executed synchronously via `child_process.spawnSync` with `shell: true` and a 10MB output buffer.
 
 ## Tools Provided
 
-- **python314t** — Runs Python 3.14t (free-threaded) via `python3.14t.exe -c`
+- **python314t** — Runs Python 3.14t (free-threaded) via temp file execution
 - **rodney** — Runs `uvx rodney` for web browser automation
 - **bun** — Runs Bun JS/TS runtime commands
 - **uv** — Runs uv Python package manager commands
@@ -30,4 +30,4 @@ Single-file MCP server (`local-dev-tools.js`) run with Bun, using `@modelcontext
 
 - Tools return `{ content: [{ type: "text", text }] }` with optional `isError: true`
 - The `executeCommand` helper wraps all shell execution and returns `{ success, output, error }`
-- Inline script execution for bun is intentionally unsupported; write to a file first
+- Inline script execution for python314t and bun uses temp files (written, executed, then cleaned up)
