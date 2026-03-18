@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__local-dev-tools__python314t",
+      "mcp__local-dev-tools__bun",
+      "mcp__local-dev-tools__uv",
+      "mcp__local-dev-tools__uvx",
+      "mcp__local-dev-tools__go",
+      "mcp__local-dev-tools__gh",
+      "mcp__local-dev-tools__git",
+      "mcp__local-dev-tools__dotnet",
+      "mcp__local-dev-tools__rodney"
+    ]
+  }
+}
