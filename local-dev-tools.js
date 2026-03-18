@@ -1,8 +1,10 @@
 const { Server } = require("@modelcontextprotocol/sdk/server/index.js");
 const { StdioServerTransport } = require("@modelcontextprotocol/sdk/server/stdio.js");
 const { CallToolRequestSchema, ListToolsRequestSchema } = require("@modelcontextprotocol/sdk/types.js");
-const { execSync, spawn } = require("child_process");
+const { spawnSync } = require("child_process");
 const path = require("path");
+const fs = require("fs");
+const os = require("os");
 
 const server = new Server(
   {
@@ -193,20 +195,25 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 }));
 
 function executeCommand(cmd, args = [], cwd = process.cwd()) {
-  try {
-    const fullCmd = args.length > 0 ? `${cmd} ${args.join(" ")}` : cmd;
-    const result = execSync(fullCmd, {
-      encoding: "utf-8",
-      cwd: cwd,
-      stdio: ["pipe", "pipe", "pipe"],
-      maxBuffer: 10 * 1024 * 1024, // 10MB buffer
-    });
-    return { success: true, output: result };
-  } catch (error) {
+  const result = spawnSync(cmd, args, {
+    encoding: "utf-8",
+    cwd: cwd,
+    stdio: ["pipe", "pipe", "pipe"],
+    maxBuffer: 10 * 1024 * 1024, // 10MB buffer
+    shell: true,
+  });
+
+  const stdout = result.stdout || "";
+  const stderr = result.stderr || "";
+  const output = [stdout, stderr].filter(Boolean).join("\n");
+
+  if (result.status === 0) {
+    return { success: true, output };
+  } else {
     return {
       success: false,
-      output: error.stdout || "",
-      error: error.stderr || error.message,
+      output,
+      error: result.error ? result.error.message : "",
     };
   }
 }
@@ -219,7 +226,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "python314t": {
         const code = request.params.arguments.code;
         const args = request.params.arguments.args || [];
-        result = executeCommand(`python3.14t.exe -c "${code.replace(/"/g, '\\"')}"`, args);
+        const tmpFile = path.join(os.tmpdir(), `claude-python-${Date.now()}.py`);
+        fs.writeFileSync(tmpFile, code);
+        try {
+          result = executeCommand("python3.14t.exe", [tmpFile, ...args]);
+        } finally {
+          try { fs.unlinkSync(tmpFile); } catch {}
+        }
         break;
       }
 
@@ -235,11 +248,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const scriptCode = request.params.arguments.scriptCode;
 
         if (scriptCode && command === "run") {
-          // For inline script code, we'd need to handle it differently
-          result = {
-            success: false,
-            error: "For inline scripts, please write to a file first, then use bun run <file>",
-          };
+          const tmpFile = path.join(os.tmpdir(), `claude-bun-${Date.now()}.ts`);
+          fs.writeFileSync(tmpFile, scriptCode);
+          try {
+            result = executeCommand("bun", ["run", tmpFile, ...args]);
+          } finally {
+            try { fs.unlinkSync(tmpFile); } catch {}
+          }
         } else {
           result = executeCommand("bun", [command, ...args]);
         }
