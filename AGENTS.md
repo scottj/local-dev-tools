@@ -20,6 +20,15 @@ Single-file MCP server (`local-dev-tools.js`) run with Bun, using `@modelcontext
 - **git** — Runs git version control commands
 - **dotnet** — Runs .NET CLI commands (build, test, run, publish, etc.)
 
+## Testing
+
+Test scripts in `scripts/` verify each tool is functional and report version numbers:
+
+- **`scripts/test-mcp-tools.ps1`** — PowerShell (Windows). Run: `powershell -File scripts\test-mcp-tools.ps1`
+- **`scripts/test-mcp-tools.sh`** — Bash (Linux). Run: `bash scripts/test-mcp-tools.sh`
+
+Both scripts start the MCP server as a child process, send JSON-RPC requests over stdio (initialize → list tools → invoke each tool), and print a color-coded pass/fail summary with version numbers. Exit code is 0 if all tools pass, 1 if any fail.
+
 ## Development
 
 - Runtime: Bun (CommonJS `require` style)
